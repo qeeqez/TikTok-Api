@@ -2,6 +2,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import TYPE_CHECKING, Iterator
 from .user import User
+from .video import Video
 from ..exceptions import InvalidResponseException
 
 if TYPE_CHECKING:
@@ -42,6 +43,34 @@ class Search:
             yield user
 
     @staticmethod
+    async def videos(search_term, count=10, cursor=0, **kwargs) -> Iterator[Video]:
+        """
+        Searches for videos.
+
+        Note: Your ms_token needs to have done a search before for this to work.
+
+        Args:
+            search_term (str): The phrase you want to search for.
+            count (int): The amount of users you want returned.
+
+        Returns:
+            async iterator/generator: Yields TikTokApi.video objects.
+
+        Raises:
+            InvalidResponseException: If TikTok returns an invalid response, or one we don't understand.
+
+        Example Usage:
+            .. code-block:: python
+
+                async for video in api.search.videos('david teather'):
+                    # do something
+        """
+        async for video in Search.search_type(
+                search_term, "item", count=count, cursor=cursor, **kwargs
+        ):
+            yield video
+
+    @staticmethod
     async def search_type(
         search_term, obj_type, count=10, cursor=0, **kwargs
     ) -> Iterator:
@@ -78,6 +107,7 @@ class Search:
                 "web_search_code": """{"tiktok":{"client_params_x":{"search_engine":{"ies_mt_user_live_video_card_use_libra":1,"mt_search_general_user_live_card":1}},"search_server":{}}}""",
             }
 
+
             resp = await Search.parent.make_request(
                 url=f"https://www.tiktok.com/api/search/{obj_type}/full/",
                 params=params,
@@ -98,6 +128,11 @@ class Search:
                     yield Search.parent.user(
                         sec_uid=sec_uid, user_id=uid, username=username
                     )
+                    found += 1
+
+            if obj_type == "item":
+                for video in resp.get("item_list", []):
+                    yield Search.parent.video(data=video)
                     found += 1
 
             if not resp.get("has_more", False):
