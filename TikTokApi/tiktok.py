@@ -181,7 +181,6 @@ class TikTokApi:
         await page.goto(url)
 
         # by doing this, we are simulate scroll event using mouse to `avoid` bot detection
-        await page.wait_for_load_state("networkidle")
         time.sleep(10)
         x, y = 0, random.randint(0, 50)
         a, b = random.randint(1, 50), random.randint(100, 200)
