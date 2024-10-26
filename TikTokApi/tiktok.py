@@ -181,7 +181,7 @@ class TikTokApi:
         await page.goto(url)
 
         # by doing this, we are simulate scroll event using mouse to `avoid` bot detection
-        time.sleep(10)
+        await asyncio.sleep(10)
         x, y = 0, random.randint(0, 50)
         a, b = random.randint(1, 50), random.randint(100, 200)
 
@@ -197,7 +197,7 @@ class TikTokApi:
             base_url=url,
         )
         if ms_token is None:
-            time.sleep(sleep_after)  # TODO: Find a better way to wait for msToken
+            await asyncio.sleep(sleep_after)  # TODO: Find a better way to wait for msToken
             cookies = await self.get_session_cookies(session)
             ms_token = cookies.get("msToken")
             session.ms_token = ms_token
