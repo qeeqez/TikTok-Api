@@ -34,3 +34,34 @@ def requests_cookie_to_playwright_cookie(req_c):
     if req_c.expires:
         c['expires'] = req_c.expires
     return c
+
+def shuffle_ms_token(ms_token: str) -> str:
+    """
+    Shuffles symbols in a msToken string.
+
+    Args:
+      ms_token: The msToken string to shuffle.
+
+    Returns:
+      The shuffled msToken string.
+    """
+    try:
+        # Split the msToken into three parts
+        part1, part2 = ms_token.split("-")
+        part2 = part2.replace("=", "")
+
+        # Shuffle the characters in the first and second parts
+        part1 = list(part1)
+        random.shuffle(part1)
+        part1 = ''.join(part1)  # Join the list back into a string
+
+        part2 = list(part2)
+        random.shuffle(part2)
+        part2 = ''.join(part2)  # Join the list back into a string
+
+        # Reconstruct the shuffled msToken
+        shuffled_ms_token = f"{part1}-{part2}="
+        return shuffled_ms_token
+    except ValueError:
+        print("Invalid msToken format. Please provide a valid msToken.")
+        return ms_token

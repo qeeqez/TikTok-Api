@@ -9,7 +9,7 @@ import json
 from playwright.async_api import async_playwright
 from urllib.parse import urlencode, quote, urlparse
 from .stealth import stealth_async
-from .helpers import random_choice
+from .helpers import random_choice, shuffle_ms_token
 
 from .api.user import User
 from .api.video import Video
@@ -273,7 +273,7 @@ class TikTokApi:
             *(
                 self.__create_session(
                     proxy=random_choice(proxies),
-                    ms_token=random_choice(ms_tokens),
+                    ms_token=shuffle_ms_token(random_choice(ms_tokens)),
                     url=starting_url,
                     context_options=context_options,
                     sleep_after=sleep_after,
