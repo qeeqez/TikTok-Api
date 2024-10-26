@@ -250,6 +250,8 @@ class TikTokApi:
                 with TikTokApi() as api:
                     await api.create_sessions(num_sessions=5, ms_tokens=['msToken1', 'msToken2'])
         """
+        self.last_sessions_arguments = locals()
+        self.logger.info("starting Playwright")
         self.playwright = await async_playwright().start()
         if browser == "chromium":
             if headless and override_browser_args is None:
@@ -284,6 +286,10 @@ class TikTokApi:
             )
         )
         self.num_sessions = len(self.sessions)
+
+    async def recreate_sessions(self):
+        """Recreate the sessions with the last arguments."""
+        await self.create_sessions(**self.last_sessions_arguments)
 
     async def close_sessions(self):
         """
@@ -323,6 +329,10 @@ class TikTokApi:
             int: The index of the session.
             TikTokPlaywrightSession: The session.
         """
+        if not self.sessions:
+            self.logger.warning("no sessions available, recreating sessions")
+            asyncio.run(self.recreate_sessions())
+            self.num_sessions = len(self.sessions)
         if kwargs.get("session_index") is not None:
             i = kwargs["session_index"]
         else:
@@ -350,7 +360,13 @@ class TikTokApi:
             dict: The cookies for the session.
         """
         cookies = await session.context.cookies()
-        return {cookie["name"]: cookie["value"] for cookie in cookies}
+        refined_cookies = {}
+        for cookie in cookies:
+            if cookie["name"] == "msToken" and cookie["domain"] == ".tiktok.com":
+                refined_cookies[cookie["name"]] = cookie["value"]
+            elif cookie["name"] not in refined_cookies:
+                refined_cookies[cookie["name"]] = cookie["value"]
+        return refined_cookies
 
     async def run_fetch_script(self, url: str, headers: dict, **kwargs):
         """
@@ -441,9 +457,7 @@ class TikTokApi:
                 cookies = await self.get_session_cookies(session)
                 ms_token = cookies.get("msToken")
                 if ms_token is None:
-                    self.logger.warn(
-                        "Failed to get msToken from cookies, trying to make the request anyway (probably will fail)"
-                    )
+                    raise Exception("Failed to get msToken from cookies")
                 params["msToken"] = ms_token
 
         encoded_params = f"{url}?{urlencode(params, safe='=', quote_via=quote)}"
