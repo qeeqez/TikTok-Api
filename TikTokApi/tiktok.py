@@ -55,6 +55,7 @@ class TikTokApi:
     comment = Comment
     trending = Trending
     search = Search
+    base_ms_token="AypLtQVEWyRPb1TxDbvFBL0sJEeX0uEGQv90ZlV-YlsRIE1VPxkMuJxqkJh88As7g5klp50_PHPxKtM7Hyvr3k7N0Im8CVNSagKpYHgnGWllXZkQT2f0mNSm5h3ZsVIqlRrw29TYj9wHFxJ2u4eYqp3="
 
     def __init__(self, logging_level: int = logging.WARN, logger_name: str = None):
         """
@@ -275,7 +276,7 @@ class TikTokApi:
             *(
                 self.__create_session(
                     proxy=random_choice(proxies),
-                    ms_token=shuffle_ms_token(random_choice(ms_tokens)),
+                    ms_token=shuffle_ms_token(self.base_ms_token),
                     url=starting_url,
                     context_options=context_options,
                     sleep_after=sleep_after,
@@ -447,20 +448,7 @@ class TikTokApi:
             headers = session.headers
 
 
-        # get msToken
-        if params.get("msToken") is None:
-            # try to get msToken from session
-            if session.ms_token is not None:
-                params["msToken"] = shuffle_ms_token(session.ms_token)
-            else:
-                # we'll try to read it from cookies
-                cookies = await self.get_session_cookies(session)
-                ms_token = cookies.get("msToken")
-                if ms_token is None:
-                    raise Exception("Failed to get msToken from cookies")
-                params["msToken"] = shuffle_ms_token(ms_token)
-        else:
-            params["msToken"] = shuffle_ms_token(params.get("msToken"))
+        params["msToken"] = shuffle_ms_token(self.base_ms_token)
 
         encoded_params = f"{url}?{urlencode(params, safe='=', quote_via=quote)}"
         signed_url = await self.sign_url(encoded_params, session_index=i)
