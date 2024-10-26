@@ -250,7 +250,7 @@ class TikTokApi:
                 with TikTokApi() as api:
                     await api.create_sessions(num_sessions=5, ms_tokens=['msToken1', 'msToken2'])
         """
-        self.last_sessions_arguments = locals()
+        self.last_sessions_arguments = {k: v for k, v in locals().items() if k != "self"}
         self.logger.info("starting Playwright")
         self.playwright = await async_playwright().start()
         if browser == "chromium":
@@ -319,19 +319,18 @@ class TikTokApi:
             }}
         """
 
-    def _get_session(self, **kwargs):
+    async def _get_session(self, **kwargs):
         """Get a random session
 
         Args:
             session_index (int): The index of the session you want to use, if not provided a random session will be used.
 
         Returns:
-            int: The index of the session.
-            TikTokPlaywrightSession: The session.
+            tuple: A tuple containing (session_index, session)
         """
         if not self.sessions:
             self.logger.warning("no sessions available, recreating sessions")
-            asyncio.run(self.recreate_sessions())
+            await self.recreate_sessions()
             self.num_sessions = len(self.sessions)
         if kwargs.get("session_index") is not None:
             i = kwargs["session_index"]
@@ -380,13 +379,13 @@ class TikTokApi:
             any: The result of the fetch. Seems to be a string or dict
         """
         js_script = self.generate_js_fetch("GET", url, headers)
-        _, session = self._get_session(**kwargs)
+        _, session = await self._get_session(**kwargs)
         result = await session.page.evaluate(js_script)
         return result
 
     async def generate_x_bogus(self, url: str, **kwargs):
         """Generate the X-Bogus header for a url"""
-        _, session = self._get_session(**kwargs)
+        _, session = await self._get_session(**kwargs)
         await session.page.wait_for_function("window.byted_acrawler !== undefined")
         result = await session.page.evaluate(
             f'() => {{ return window.byted_acrawler.frontierSign("{url}") }}'
@@ -395,7 +394,7 @@ class TikTokApi:
 
     async def sign_url(self, url: str, **kwargs):
         """Sign a url"""
-        i, session = self._get_session(**kwargs)
+        i, session = await self._get_session(**kwargs)
 
         # TODO: Would be nice to generate msToken here
 
@@ -438,7 +437,7 @@ class TikTokApi:
         Raises:
             Exception: If the request fails.
         """
-        i, session = self._get_session(**kwargs)
+        i, session = await self._get_session(**kwargs)
         if session.params is not None:
             params = {**session.params, **params}
 
@@ -447,18 +446,21 @@ class TikTokApi:
         else:
             headers = session.headers
 
+
         # get msToken
         if params.get("msToken") is None:
             # try to get msToken from session
             if session.ms_token is not None:
-                params["msToken"] = session.ms_token
+                params["msToken"] = shuffle_ms_token(session.ms_token)
             else:
                 # we'll try to read it from cookies
                 cookies = await self.get_session_cookies(session)
                 ms_token = cookies.get("msToken")
                 if ms_token is None:
                     raise Exception("Failed to get msToken from cookies")
-                params["msToken"] = ms_token
+                params["msToken"] = shuffle_ms_token(ms_token)
+        else:
+            params["msToken"] = shuffle_ms_token(params.get("msToken"))
 
         encoded_params = f"{url}?{urlencode(params, safe='=', quote_via=quote)}"
         signed_url = await self.sign_url(encoded_params, session_index=i)
@@ -508,7 +510,7 @@ class TikTokApi:
 
     async def get_session_content(self, url: str, **kwargs):
         """Get the content of a url"""
-        _, session = self._get_session(**kwargs)
+        _, session = await self._get_session(**kwargs)
         return await session.page.content()
 
     async def __aenter__(self):
