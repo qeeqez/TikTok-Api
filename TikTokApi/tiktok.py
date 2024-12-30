@@ -97,7 +97,7 @@ class TikTokApi:
             "() => navigator.language || navigator.userLanguage"
         )
         platform = await session.page.evaluate("() => navigator.platform")
-        device_id = str(random.randint(10**18, 10**19 - 1))  # Random device id
+        device_id = str(random.randint(10000, 999999999))  # Random device id
         history_len = str(random.randint(1, 10))  # Random history length
         screen_height = str(random.randint(600, 1080))  # Random screen height
         screen_width = str(random.randint(800, 1920))  # Random screen width
