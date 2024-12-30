@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TikTokApi.tiktok &mdash; TikTokAPI v6.5.6 documentation</title>
+  <title>TikTokApi.tiktok &mdash; TikTokAPI v6.5.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://davidteather.github.io/TikTok-Api/_modules/TikTokApi/tiktok.html" />
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=eb211fae"></script>
+      <script src="../../_static/documentation_options.js?v=4f599bb7"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -171,7 +171,7 @@
             <span class="s2">&quot;() =&gt; navigator.language || navigator.userLanguage&quot;</span>
         <span class="p">)</span>
         <span class="n">platform</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">page</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;() =&gt; navigator.platform&quot;</span><span class="p">)</span>
-        <span class="n">device_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">19</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Random device id</span>
+        <span class="n">device_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">999999999</span><span class="p">))</span>  <span class="c1"># Random device id</span>
         <span class="n">history_len</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>  <span class="c1"># Random history length</span>
         <span class="n">screen_height</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">1080</span><span class="p">))</span>  <span class="c1"># Random screen height</span>
         <span class="n">screen_width</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">1920</span><span class="p">))</span>  <span class="c1"># Random screen width</span>
